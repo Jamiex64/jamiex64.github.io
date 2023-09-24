@@ -17,6 +17,7 @@
             background-color: #333;
             color: #fff;
             padding: 20px;
+            position: relative; /* Add position relative to header */
         }
 
         h1 {
@@ -30,6 +31,8 @@
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            position: relative; /* Add position relative to .memorial */
+            z-index: 1; /* Set a higher z-index to bring it to the front */
         }
 
         .memorial h2 {
@@ -50,9 +53,21 @@
         .memorial .names span {
             color: #d9534f;
         }
-        
+
         iframe {
-        	display: none;
+            display: none;
+        }
+
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            position: absolute; /* Add position absolute to canvas */
+            top: 0;
+            left: 0;
         }
     </style>
 </head>
@@ -60,6 +75,7 @@
     <header>
         <h1>In Loving Memory</h1>
     </header>
+    <canvas id="rainCanvas"></canvas>
     <div class="memorial">
         <h2>Remembering Our Fallen Brothers</h2>
         <p>We pay tribute to those who gave their all in the name of loot.</p>
@@ -69,12 +85,71 @@
             <p><span>Pimp</span></p>
             <!-- Add more names here -->
         </div>
-        
-    <audio controls autoplay loop muted>
-        <source src="https://ia800205.us.archive.org/31/items/TapsBugleCall/taps_64kb.mp3" type="audio/mpeg">
-        Your browser does not support the audio element.
-    </audio>
 
+        <audio controls autoplay loop muted>
+            <source src="https://ia800205.us.archive.org/31/items/TapsBugleCall/taps_64kb.mp3" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
     </div>
+    <script>
+        const canvas = document.getElementById("rainCanvas");
+        const ctx = canvas.getContext("2d");
+
+        // Set canvas size to cover the entire viewport
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // Create an array to store raindrop objects
+        const raindrops = [];
+
+        // Define the raindrop class
+        class Raindrop {
+            constructor(x, y, speed, length, image) {
+                this.x = x;
+                this.y = y;
+                this.speed = speed;
+                this.length = length;
+                this.image = image;
+            }
+
+            fall() {
+                this.y += this.speed;
+                if (this.y > canvas.height) {
+                    this.y = 0 - this.length;
+                }
+            }
+
+            draw() {
+                ctx.drawImage(this.image, this.x, this.y, 20, this.length);
+            }
+        }
+
+        // Load the raindrop image
+        const raindropImage = new Image();
+        raindropImage.src = "https://oldschool.runescape.wiki/images/thumb/Tumeken%27s_shadow_%28uncharged%29_detail.png/1200px-Tumeken%27s_shadow_%28uncharged%29_detail.png?24f11";
+
+        // Create initial raindrops
+        for (let i = 0; i < 100; i++) {
+            const x = Math.random() * canvas.width;
+            const y = Math.random() * canvas.height;
+            const speed = 2 + Math.random() * 3;
+            const length = 20 + Math.random() * 30;
+            raindrops.push(new Raindrop(x, y, speed, length, raindropImage));
+        }
+
+        // Function to animate the rain
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (const drop of raindrops) {
+                drop.fall();
+                drop.draw();
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
 </body>
 </html>
